@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use \GuzzleHttp;
+use Illuminate\Support\Collection;
 
 /**
  * App\Product
@@ -35,8 +37,9 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Query\Builder|\App\Product whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class Product extends Model
+class Product extends Model implements Buyable
 {
+    use CanBeBought;
 
     protected $fillable = [
         'category_id',
@@ -46,6 +49,20 @@ class Product extends Model
         'options',
         'description',
     ];
+
+    /* 접근자(Accessor) */
+
+    public function getOptionsAttribute(string $options)
+    {
+        return collect(json_decode($options));
+    }
+
+    /*변경자 (Mutator) */
+    public function setOptionsAttribute(Collection $options)
+    {
+        $this->attributes['options'] = $options->toJson();
+    }
+
 
     /* RELATIONSHIPS */
 
@@ -67,5 +84,15 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(Image::class);
+    }
+
+    public function price()
+    {
+        return $this->price();
+    }
+
+    public function add()
+    {
+
     }
 }

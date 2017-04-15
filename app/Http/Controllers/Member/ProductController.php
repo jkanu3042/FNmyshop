@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Member;
 
+use App\Http\Requests\StoreImageRequest;
 use App\Http\Requests\StoreProductRequest;
+use App\Image;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -32,6 +34,10 @@ class ProductController extends Controller
             'options' => $request->getOptions(),
             'description' => $request->getDescription(),
         ]);
+
+        $request->getImages()->each(function (Image $image) use ($product) {
+             $image->product()->associate($product)->save();
+         });
 
         return redirect(route('products.index'));
 

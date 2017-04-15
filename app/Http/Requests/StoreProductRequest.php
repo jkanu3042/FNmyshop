@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Image;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProductRequest extends ShopRequest
@@ -45,16 +46,24 @@ class StoreProductRequest extends ShopRequest
     {
         $options = collect([]);
 
-        foreach ($this->input('options') as $option) {
-            $options->push([$option['name'] => $option['value']]);
-        }
+        $options->push([
+            $this->input('options.0.name') =>
+                $this->input('options.0.value'),
+        ]);
 
-        return json_encode($options->toArray());
+        return $options;
     }
 
     public function getDescription()
     {
         return $this->input('description');
+    }
+
+    public function getImages()
+    {
+        return Image::whereIn('id',
+            $this->input('images',[])
+        )->get();
     }
 
 

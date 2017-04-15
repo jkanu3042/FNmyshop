@@ -2,26 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreImageRequest;
 use App\Image;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Http\Request;
 
 class ImageController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    const IMAGE_DIR="public/product_images";
+
     public function index()
     {
         //
-    }
+}
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         //
@@ -33,9 +27,24 @@ class ImageController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreImageRequest $request)
     {
-        //
+        $images = collect([]);
+
+        /** @var UploadedFile $image */
+        foreach ($request->getImages() as $image) {
+            $filename = $image->store(self::IMAGE_DIR);
+
+            $savedImage = Image::create([
+                'filename' => pathinfo($filename, PATHINFO_BASENAME),
+                'bytes' => $image->getClientSize(),
+                'mime' => $image->getClientMimeType(),
+            ]);
+
+            $images->push($savedImage);
+        }
+
+        return $images;
     }
 
     /**
